@@ -1,27 +1,39 @@
 const connectToMongo = require("./db");
 const express = require("express");
-var cors = require("cors");
+const cors = require("cors");
 require("dotenv").config();
 
 connectToMongo();
 
 const app = express();
+const port = process.env.PORT || 5000;
 
 // CORS configuration
 app.use(
   cors({
-    origin: "https://cloudscript-one.vercel.app", // Replace with your Vercel frontend URL
-    methods: ["GET", "POST", "PUT", "DELETE"], // Specify the HTTP methods you need
-    credentials: true, // Allow cookies and other credentials to be sent
+    origin: process.env.CORS_ORIGIN || "https://cloudscript-one.vercel.app", // Use environment variable for CORS origin, defaulting to your Vercel frontend
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Include OPTIONS for preflight requests
+    credentials: true, // Allow credentials (cookies, etc.)
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow custom headers
   })
 );
 
-// Middleware for JSON
+// Middleware to parse JSON requests
 app.use(express.json());
 
 // Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/notes", require("./routes/notes"));
 
-// Export the app module for Vercel
+// Handle preflight requests (OPTIONS)
+app.options("*", cors()); // Enable CORS preflight for all routes
+
+// Start the server if running locally (not required for Vercel)
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log(`Server running locally on port ${port}`);
+  });
+}
+
+// Export the app for Vercel's serverless deployment
 module.exports = app;
