@@ -6,26 +6,22 @@ require("dotenv").config();
 connectToMongo();
 
 const app = express();
-const port = process.env.PORT || 5000;
 
-const http = require("http");
+// CORS configuration
+app.use(
+  cors({
+    origin: "https://cloudscript-one.vercel.app", // Replace with your Vercel frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"], // Specify the HTTP methods you need
+    credentials: true, // Allow cookies and other credentials to be sent
+  })
+);
 
-// app.use(cors())
-
-const allowedOrigins = [
-  process.env.CORS_ORIGIN];
-
-app.use(cors({
-  origin: 'https://cloudscript-one.vercel.app', // Replace with your Vercel frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify the HTTP methods you need
-  credentials: true // Allow cookies and other credentials to be sent
-}));
+// Middleware for JSON
 app.use(express.json());
 
-//Routes
+// Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/notes", require("./routes/notes"));
 
-app.listen(port, () => {
-  console.log(`app listening on port ${port}`);
-});
+// Export the app module for Vercel
+module.exports = app;
