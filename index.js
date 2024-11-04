@@ -11,10 +11,10 @@ const port = process.env.PORT || 5000;
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "https://cloudscript-one.vercel.app", // Use environment variable for CORS origin, defaulting to your Vercel frontend
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Include OPTIONS for preflight requests
-    credentials: true, // Allow credentials (cookies, etc.)
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow custom headers
+    origin: process.env.CORS_ORIGIN || "https://cloudscript-one.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -25,15 +25,12 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/notes", require("./routes/notes"));
 
-// Handle preflight requests (OPTIONS)
-app.options("*", cors()); // Enable CORS preflight for all routes
+// Health-check route for Render
+app.get("/health", (req, res) => {
+  res.status(200).send("Server is healthy!");
+});
 
-// Start the server if running locally (not required for Vercel)
-if (process.env.NODE_ENV !== "production") {
-  app.listen(port, () => {
-    console.log(`Server running locally on port ${port}`);
-  });
-}
-
-// Export the app for Vercel's serverless deployment
-module.exports = app;
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
